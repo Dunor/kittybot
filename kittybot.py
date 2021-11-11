@@ -1,12 +1,20 @@
-import requests
-from telegram.ext import CommandHandler, Updater, Filters, MessageHandler
-from telegram import ReplyKeyboardMarkup
+"""Телеграм-ботб присылает в чат по нажатию кнопки фотграфии котиков"""
+import logging
 import os
+
+import requests
 from dotenv import load_dotenv
+from telegram import ReplyKeyboardMarkup
+from telegram.ext import CommandHandler, Updater
 
 load_dotenv()
 
 secret_token = os.getenv('TOKEN')
+
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO)
+
 URL = 'https://api.thecatapi.com/v1/images/search'
 
 
@@ -14,13 +22,12 @@ def get_new_image():
     try:
         response = requests.get(URL)
     except Exception as error:
-        print(error)
+        logging.error(f'Ошибка при запросе к основному API: {error}')
         new_url = 'https://api.thedogapi.com/v1/images/search'
         response = requests.get(new_url)
 
     response = response.json()
-    random_cat = response[0].get('url')
-    return random_cat
+    return response[0].get('url')
 
 
 def new_cat(update, context):
